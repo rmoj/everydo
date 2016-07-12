@@ -10,13 +10,15 @@
 #import "DetailViewController.h"
 #import "Todo.h"
 
-@interface MasterViewController ()
+@interface MasterViewController () 
 
 @property NSMutableArray *objects;
+@property NSString *taskDescription;
 
 @end
 
 @implementation MasterViewController
+
 
 - (Todo*) createToDoItemWithTitle: (NSString*)title description:(NSString*)desc priority:(int) priorityNumber {
 
@@ -40,6 +42,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
+    
+    [self prepToDoItems];
+    
     self.navigationItem.leftBarButtonItem = self.editButtonItem;
 
     UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(insertNewObject:)];
@@ -58,8 +63,15 @@
     if (!self.objects) {
         self.objects = [[NSMutableArray alloc] init];
     }
+    
+    //inserting: count
+    //creating:count-1
+    
+    Todo *toDoItem = [self createToDoItemWithTitle:@"New Task" description:@"This is a new task" priority:(int) self.objects.count];
+    [self.objects insertObject:toDoItem atIndex:self.objects.count];
 //    [self.objects insertObject:[NSDate date] atIndex:0];
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+    
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:self.objects.count-1 inSection:0];
     [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
 }
 
@@ -68,9 +80,12 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     if ([[segue identifier] isEqualToString:@"showDetail"]) {
         NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
-        NSDate *object = self.objects[indexPath.row];
+        Todo *object = self.objects[indexPath.row];
         DetailViewController *controller = (DetailViewController *)[segue destinationViewController];
         [controller setDetailItem:object];
+        
+ //       controller.detailItem = object;
+        controller.detailDescriptionLabel.text = object.taskDescription;
     }
 }
 
@@ -82,13 +97,18 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return self.objects.count;
+
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
 
-    NSDate *object = self.objects[indexPath.row];
-    cell.textLabel.text = [object description];
+    Todo *object = self.objects[indexPath.row];
+//    cell.textLabel.text = [object description];
+    cell.textLabel.text = object.title;
+//    cell.textLabel.text = [object title];
+    
+    
     return cell;
 }
 
