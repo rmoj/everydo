@@ -30,7 +30,7 @@
     if (self.detailItem) {
 //      self.detailDescriptionLabel.text = [self.detailItem description];
  
-        self.detailDescriptionLabel.text = self.detailItem.taskDescription;
+  self.detailDescriptionLabel.text = self.detailItem.taskDescription;
         
     }
 }

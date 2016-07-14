@@ -52,6 +52,7 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -59,20 +60,47 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (void)insertNewObject:(id)sender {
-    if (!self.objects) {
-        self.objects = [[NSMutableArray alloc] init];
-    }
-    
-    //inserting: count
-    //creating:count-1
-    
-    Todo *toDoItem = [self createToDoItemWithTitle:@"New Task" description:@"This is a new task" priority:(int) self.objects.count];
+
+- (void) addToDoItem: (NSString*)taskName description:(NSString*) itemDesc {
+
+    Todo *toDoItem = [self createToDoItemWithTitle:taskName description:itemDesc priority:(int) self.objects.count];
     [self.objects insertObject:toDoItem atIndex:self.objects.count];
-//    [self.objects insertObject:[NSDate date] atIndex:0];
     
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:self.objects.count-1 inSection:0];
     [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+
+}
+
+
+- (void)insertNewObject:(id)sender {
+//    if (!self.objects) {
+//        self.objects = [[NSMutableArray alloc] init];
+//    }
+    
+    [self showModalViewForNewTasks];
+    
+//    Todo *toDoItem = [self createToDoItemWithTitle:@"New Task" description:@"This is a new task" priority:(int) self.objects.count];
+//    [self.objects insertObject:toDoItem atIndex:self.objects.count];
+//    [self.objects insertObject:[NSDate date] atIndex:0];
+    
+//    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:self.objects.count-1 inSection:0];
+//    [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+}
+
+- (void) showModalViewForNewTasks {
+
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    ModalViewController *modalVC = [storyboard instantiateViewControllerWithIdentifier:@"modalVC"];
+    modalVC.modalPresentationStyle = UIModalPresentationFullScreen;
+    modalVC.delegate = self;
+    [self presentViewController:modalVC animated:YES completion:^{ }];
+}
+
+- (void) dismissModalViewForNewTasks {
+
+    [self.presentingViewController dismissViewControllerAnimated:YES
+                                                      completion:nil];
+
 }
 
 #pragma mark - Segues
@@ -85,7 +113,7 @@
         [controller setDetailItem:object];
         
  //       controller.detailItem = object;
-        controller.detailDescriptionLabel.text = object.taskDescription;
+  //      controller.detailDescriptionLabel.text = object.taskDescription;
     }
 }
 
@@ -117,7 +145,31 @@
     return YES;
 }
 
+- (void)tableView:(UITableView *)tableView willBeginEditingRowAtIndexPath:(NSIndexPath *)indexPath{
+
+    UITableViewCell *thisCell = [tableView cellForRowAtIndexPath:indexPath];
+    thisCell.textLabel.textColor = [UIColor redColor];
+    
+    
+    NSMutableAttributedString *attributeString = [[NSMutableAttributedString alloc] initWithString:thisCell.textLabel.text];
+    [attributeString addAttribute:NSStrikethroughStyleAttributeName
+value:@2
+range:NSMakeRange(0, [attributeString length])];
+    
+    thisCell.textLabel.attributedText = attributeString;
+    Todo *object = self.objects[indexPath.row];
+    object.isCompleted = YES;
+
+
+}
+
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    //set todo item as completed
+
+//    [self.objects objectAtIndex:indexPath.row];
+    
+    
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         [self.objects removeObjectAtIndex:indexPath.row];
         [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
